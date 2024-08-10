@@ -49,13 +49,6 @@ jobs:
           ./bootstrap-vcpkg.bat
           vcpkg install triton --triplet x64-windows-static
 
-      - name: Debug info
-        run: |
-          echo "Workspace: ${{ github.workspace }}"
-          echo "vcpkg path: ${{ github.workspace }}/vcpkg"
-          ls ${{ github.workspace }}
-          if [ -f "${{ github.workspace }}/vcpkg.json" ]; then echo "vcpkg.json exists"; else echo "vcpkg.json not found"; fi
-
       - name: Re-cache vcpkg after installation
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         uses: actions/cache@v2
