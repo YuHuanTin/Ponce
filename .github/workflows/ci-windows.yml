@@ -29,8 +29,7 @@ jobs:
       - name: Unzip IDA_SDKs.zip
         run: |
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
-          cd IDA_SDKs
-          7z.exe x *.zip
+#          cd IDA_SDKs
 
       - name: Cache vcpkg
         id: cache-vcpkg
