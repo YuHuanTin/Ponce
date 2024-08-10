@@ -28,6 +28,8 @@ jobs:
 
       - name: Unzip IDA_SDKs.zip
         run: |
+          dir
+          dir private-sdk-repo
           7z.exe x private-sdk-repo/idasdk90.zip -oIDA_SDKs
           cd IDA_SDKs
           7z.exe x *.zip
