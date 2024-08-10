@@ -29,7 +29,7 @@ jobs:
       - name: Unzip IDA_SDKs.zip
         run: |
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
-      
+
       - name: Restore vcpkg from cache
         id: restore-vcpkg-from-cache
         uses: actions/cache/restore@v4
@@ -49,17 +49,25 @@ jobs:
           ./bootstrap-vcpkg.bat
           vcpkg install triton --triplet x64-windows-static
 
+      - name: Debug info
+        run: |
+          echo "Workspace: ${{ github.workspace }}"
+          echo "vcpkg path: ${{ github.workspace }}/vcpkg"
+          ls ${{ github.workspace }}
+          if [ -f "${{ github.workspace }}/vcpkg.json" ]; then echo "vcpkg.json exists"; else echo "vcpkg.json not found"; fi
+
       - name: Re-cache vcpkg after installation
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         uses: actions/cache@v2
         with:
-          path: |
-            ${{ env.workspace }}/vcpkg
+          path: ${{ github.workspace }}/vcpkg
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
 
       - name: Build Ponce IDA 9.0
         run: |
-          cmake -S . -B build_x64_9.0 -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64 -DVCPKG_TARGET_TRIPLET="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+          cmake -S . -B build_x64_9.0 -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 17 2022" -A x64 -DVCPKG_TARGET_TRIPLET="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE="${{ env.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"
           cmake --build build_x64_9.0 --config Release --parallel 4
 
       - uses: actions/upload-artifact@master
