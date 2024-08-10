@@ -29,11 +29,14 @@ jobs:
       - name: Unzip IDA_SDKs.zip
         run: |
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
-#          cd IDA_SDKs
-
-      - name: Cache vcpkg
-        id: cache-vcpkg
-        uses: actions/cache@v2
+      
+      - name: Set Vcpkg installation root
+        run: |
+          echo "VCPKG_INSTALLATION_ROOT=$env:GITHUB_WORKSPACE\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+      
+      - name: Restore vcpkg from cache
+        id: restore-vcpkg-from-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             ${{ env.VCPKG_INSTALLATION_ROOT }}
