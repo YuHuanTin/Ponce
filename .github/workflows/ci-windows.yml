@@ -2,7 +2,7 @@ name: Build for Windows
 on:
   push:
   pull_request:
-  workflow_dispatch: 
+  workflow_dispatch:
     inputs:
       reason:
         description: 'Reason'
@@ -19,16 +19,16 @@ jobs:
         with:
           submodules: true
 
-      - uses: robinraju/release-downloader@v1.5
+      - name: Download IDA_SDK
+        uses: actions/checkout@v3
         with:
           repository: ${{ secrets.SDK_REPO }}
-          latest: true
-          filename: "idasdk90.zip"
           token: ${{ secrets.SDK_REPO_ACCESS_TOKEN }}
+          path: private-sdk-repo
 
       - name: Unzip IDA_SDKs.zip
         run: |
-          7z.exe x idasdk90.zip -oIDA_SDKs
+          7z.exe x private-sdk-repo/idasdk90.zip -oIDA_SDKs
           cd IDA_SDKs
           7z.exe x *.zip
 
