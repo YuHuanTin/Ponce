@@ -30,16 +30,12 @@ jobs:
         run: |
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
       
-      - name: Set Vcpkg installation root
-        run: |
-          echo "VCPKG_INSTALLATION_ROOT=$env:GITHUB_WORKSPACE\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-      
       - name: Restore vcpkg from cache
         id: restore-vcpkg-from-cache
         uses: actions/cache/restore@v4
         with:
           path: |
-            ${{ env.VCPKG_INSTALLATION_ROOT }}
+            ${{ env.workspace }}/vcpkg
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-
@@ -47,7 +43,10 @@ jobs:
       - name: Install Triton
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          "`r`nset(VCPKG_BUILD_TYPE release)" | Add-Content "$env:VCPKG_INSTALLATION_ROOT\triplets\x64-windows-static.cmake"
+          cd ${{ env.workspace }}
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.bat
           vcpkg install triton --triplet x64-windows-static
 
       - name: Re-cache vcpkg after installation
@@ -55,7 +54,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ${{ env.VCPKG_INSTALLATION_ROOT }}
+            ${{ env.workspace }}/vcpkg
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
 
       - name: Build Ponce IDA 9.0
