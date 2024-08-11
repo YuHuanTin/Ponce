@@ -44,7 +44,7 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/vcpkg
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-vcpkg-
 
       - name: Install Triton
         if: steps.cache-vcpkg-id.outputs.cache-hit != 'true'
@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/vcpkg
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-vcpkg-
 
       - name: Build Ponce IDA 9.0
         run: |
