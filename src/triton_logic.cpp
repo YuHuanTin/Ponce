@@ -154,6 +154,7 @@ int tritonize(ea_t pc, thid_t threadID)
 }
 
 bool ponce_set_triton_architecture() {
+    const auto ph = *get_ph();
     if (ph.id == PLFM_386) {
         if (ph.use64())
             tritonCtx.setArchitecture(triton::arch::ARCH_X86_64);

@@ -31,6 +31,12 @@ jobs:
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
           dir
 
+      - name: Download vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.bat
+          cd ..
 
       - name: Resume vcpkg
         id: cache-vcpkg-id
@@ -43,24 +49,15 @@ jobs:
       - name: Install Triton
         if: steps.cache-vcpkg-id.outputs.cache-hit != 'true'
         run: |
-          dir
-          cd ${{ github.workspace }}
-          dir
-          
-          git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
-          ./bootstrap-vcpkg.bat
           vcpkg install triton --triplet x64-windows-static
           cd ..
           dir 
 
-
-
-
       - name: Save vcpkg
         uses: actions/cache/save@v4.0.2
+        if: always()
         with:
-          if: always()
           path: |
             ${{ github.workspace }}/vcpkg
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
