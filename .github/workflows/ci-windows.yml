@@ -29,16 +29,14 @@ jobs:
       - name: Unzip IDA_SDKs.zip
         run: |
           7z.exe x ./private-sdk-repo/idasdk90.zip -oIDA_SDKs
+          dir
 
-      - name: Restore vcpkg from cache
-        id: restore-vcpkg-from-cache
-        uses: actions/cache/restore@v4
+      - name: Cache vcpkg
+        uses: actions/cache@v2
         with:
           path: |
             ${{ env.workspace }}/vcpkg
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-
 
       - name: Install Triton
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -48,15 +46,9 @@ jobs:
           cd vcpkg
           ./bootstrap-vcpkg.bat
           vcpkg install triton --triplet x64-windows-static
-
-      - name: Re-cache vcpkg after installation
-        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/vcpkg
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-
+          dir
+          dir vcpkg
+          
 
       - name: Build Ponce IDA 9.0
         run: |
