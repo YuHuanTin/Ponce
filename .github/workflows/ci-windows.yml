@@ -56,7 +56,7 @@ jobs:
 
       - name: Save vcpkg
         uses: actions/cache/save@v4.0.2
-        if: always()
+        if: always() && steps.cache-vcpkg-id.outputs.cache-hit != 'true'
         with:
           path: |
             ${{ github.workspace }}/vcpkg
