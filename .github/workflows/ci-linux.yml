@@ -63,13 +63,9 @@ jobs:
 
       - name: Build Ponce IDA 9.0
         run: |
-          ls -ahl .
-          cd vcpkg
-          vcpkg install triton
-          cd ..
           cmake -S . -B build_x64_9.0 -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\vcpkg\scripts\buildsystems\vcpkg.cmake"
           cmake --build build_x64_9.0 --config Release --parallel 4
-          ls -ahl
+          ls -ahl ./build_x64_9.0
 
 
       - uses: actions/upload-artifact@master
