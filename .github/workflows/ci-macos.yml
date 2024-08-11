@@ -50,7 +50,7 @@ jobs:
         run: |
           cd vcpkg
           ls -ahl .
-          ./vcpkg install triton --triplet=arm64-osx
+          ./vcpkg install triton --triplet=arm64-osx --allow-unsupported
           cd ..
 
       - name: Save vcpkg
