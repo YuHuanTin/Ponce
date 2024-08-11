@@ -1,4 +1,4 @@
-name: Build for OSX
+name: Build for OSX (NOT SUPPORTED ARM64 OSX)
 on:
   #  push:
   #  pull_request:
