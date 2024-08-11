@@ -1,7 +1,12 @@
 name: Build for Linux
 on:
-#  push:
-#  pull_request:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason'
+        required: false
   release:
     types: # This configuration does not affect the page_build event above
       - created
@@ -14,174 +19,60 @@ jobs:
         with:
           submodules: true
 
-      - uses: robinraju/release-downloader@v1.5
+      - name: Download IDA_SDK
+        uses: actions/checkout@v3
         with:
           repository: ${{ secrets.SDK_REPO }}
-          latest: true
-          filename: "IDA_SDKs.zip"
           token: ${{ secrets.SDK_REPO_ACCESS_TOKEN }}
+          path: private-sdk-repo
 
       - name: Unzip IDA_SDKs.zip
-        shell: bash
         run: |
-          unzip IDA_SDKs.zip -d IDA_SDKs
-          cd IDA_SDKs
-          unzip -n -q '*.zip'
+          unzip ./private-sdk-repo/idasdk90.zip -d IDA_SDKs
+
+      - name: Download vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.sh
+          cd ..
+
+      - name: Resume vcpkg
+        id: cache-vcpkg-id
+        uses: actions/cache@v4.0.2
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg
+          key: ${{ runner.os }}-vcpkg-
 
       - name: Install Triton
+        if: steps.cache-vcpkg-id.outputs.cache-hit != 'true'
         run: |
-          echo "set(VCPKG_BUILD_TYPE release)" >> $VCPKG_INSTALLATION_ROOT/triplets/x64-linux.cmake
+          cd vcpkg
           vcpkg install triton
+          cd ..
+          dir 
 
-      - name: Build Ponce IDA 7.0
+      - name: Save vcpkg
+        uses: actions/cache/save@v4.0.2
+        if: always() && steps.cache-vcpkg-id.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg
+          key: ${{ runner.os }}-vcpkg-
+
+      - name: Build Ponce IDA 9.0
         run: |
-          cmake -S . -B build_x64_7.0 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk70" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.0 --config Release --parallel 2
+          cmake -S . -B build_x64_9.0 -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\vcpkg\scripts\buildsystems\vcpkg.cmake"
+          cmake --build build_x64_9.0 --config Release --parallel 4
 
-      - name: Build Ponce IDA 7.1
-        run: |
-          cmake -S . -B build_x64_7.1 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk71" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.1 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.2
-        run: |
-          cmake -S . -B build_x64_7.2 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk72" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.2 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.3
-        run: |
-          cmake -S . -B build_x64_7.3 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk73" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.3 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.4
-        run: |
-          cmake -S . -B build_x64_7.4 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk74" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.4 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.5
-        run: |
-          cmake -S . -B build_x64_7.5 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk75" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.5 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.6
-        run: |
-          cmake -S . -B build_x64_7.6 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk76" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_7.6 --config Release --parallel 2
-
-      - name: Build Ponce IDA 7.7
-        run: |
-            cmake -S . -B build_x64_7.7 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk77" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-            cmake --build build_x64_7.7 --config Release --parallel 2
-
-      - name: Build Ponce IDA 8.0
-        run: |
-          cmake -S . -B build_x64_8.0 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk_pro80" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_8.0 --config Release --parallel 2
-
-      - name: Build Ponce IDA 8.1
-        run: |
-          cmake -S . -B build_x64_8.1 -DIDASDK_ROOT_DIR="./IDA_SDKs/idasdk_pro81" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          cmake --build build_x64_8.1 --config Release --parallel 2
 
       - uses: actions/upload-artifact@master
         with:
-          name: Ponce_ida70
-          path: build_x64_7.0/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida70
-          path: build_x64_7.0/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida71
-          path: build_x64_7.1/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida71
-          path: build_x64_7.1/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida72
-          path: build_x64_7.2/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida72
-          path: build_x64_7.2/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida73
-          path: build_x64_7.3/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida73
-          path: build_x64_7.3/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida74
-          path: build_x64_7.4/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida74
-          path: build_x64_7.4/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida75
-          path: build_x64_7.5/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida75
-          path: build_x64_7.5/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida76
-          path: build_x64_7.6/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida76
-          path: build_x64_7.6/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-            name: Ponce_ida77
-            path: build_x64_7.7/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-            name: Ponce_ida77
-            path: build_x64_7.7/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida80
-          path: build_x64_8.0/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida80
-          path: build_x64_8.0/Ponce.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida81
-          path: build_x64_8.1/Ponce64.so
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida81
-          path: build_x64_8.1/Ponce.so
+          name: Ponce_ida90
+          path: |
+            build_x64_9.0/Release/Ponce.so
+            build_x64_9.0/Release/Ponce64.so
 
   release:
     runs-on: ubuntu-latest

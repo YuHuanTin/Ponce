@@ -72,7 +72,8 @@ jobs:
         with:
           name: Ponce_ida90
           path: |
-            build_x64_9.0/Release/*
+            build_x64_9.0/Release/Ponce.dll
+            build_x64_9.0/Release/Ponce64.dll
 
   release:
     runs-on: ubuntu-latest
