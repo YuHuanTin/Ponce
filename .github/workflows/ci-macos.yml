@@ -1,7 +1,7 @@
-name: Build for OSX
+name: Build for OSX (disbaled)
 on:
-  push:
-  pull_request:
+#  push:
+#  pull_request:
   workflow_dispatch:
     inputs:
       reason:
