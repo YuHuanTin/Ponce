@@ -51,7 +51,7 @@ jobs:
           cd vcpkg
           vcpkg install triton
           cd ..
-          dir 
+          ls -ahl . 
 
       - name: Save vcpkg
         uses: actions/cache/save@v4.0.2

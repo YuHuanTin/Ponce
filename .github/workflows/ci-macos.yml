@@ -49,9 +49,9 @@ jobs:
         if: steps.cache-vcpkg-id.outputs.cache-hit != 'true'
         run: |
           cd vcpkg
-          vcpkg install triton
+          ls -ahl .
+          ./vcpkg install triton
           cd ..
-          dir 
 
       - name: Save vcpkg
         uses: actions/cache/save@v4.0.2
