@@ -1,7 +1,7 @@
-name: Build for OSX (disbaled)
+name: Build for OSX
 on:
-#  push:
-#  pull_request:
+  #  push:
+  #  pull_request:
   workflow_dispatch:
     inputs:
       reason:
@@ -29,6 +29,9 @@ jobs:
       - name: Unzip IDA_SDKs.zip
         run: |
           unzip ./private-sdk-repo/idasdk90.zip -d IDA_SDKs
+
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.18
 
       - name: Download vcpkg
         run: |
