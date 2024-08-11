@@ -72,8 +72,8 @@ jobs:
         with:
           name: Ponce_ida90
           path: |
-            build_x64_9.0/Release/Ponce.so
-            build_x64_9.0/Release/Ponce64.so
+            build_x64_9.0/Ponce.so
+            build_x64_9.0/Ponce64.so
 
   release:
     runs-on: ubuntu-latest
