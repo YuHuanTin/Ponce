@@ -50,7 +50,7 @@ jobs:
         run: |
           cd vcpkg
           ls -ahl .
-          ./vcpkg install triton
+          ./vcpkg install triton --triplet=arm64-osx
           cd ..
 
       - name: Save vcpkg
@@ -63,7 +63,7 @@ jobs:
 
       - name: Build Ponce IDA 9.0
         run: |
-          cmake -S . -B build_x64_9.0 -DUSE_CLANG=ON -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\vcpkg\scripts\buildsystems\vcpkg.cmake"
+          cmake -S . -B build_x64_9.0 -DUSE_CLANG=ON -DIDASDK_ROOT_DIR=".\IDA_SDKs" -DSTATICLIB=ON -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET="arm64-osx" -DCMAKE_TOOLCHAIN_FILE=".\vcpkg\scripts\buildsystems\vcpkg.cmake"
           cmake --build build_x64_9.0 --config Release --parallel 4
 
 
