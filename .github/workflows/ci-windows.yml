@@ -71,12 +71,8 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: Ponce_ida90
-          path: build_x64_9.0/Release/Ponce64.dll
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: Ponce_ida90
-          path: build_x64_9.0/Release/Ponce.dll
+          path: |
+            build_x64_9.0/Release/*
 
   release:
     runs-on: ubuntu-latest
